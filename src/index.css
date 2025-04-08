@@ -1,0 +1,318 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --radius: 0.75rem;
+  }
+}
+
+@font-face {
+  font-family: 'Orbitron';
+  src: url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Space Mono';
+  src: url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  src: url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@300;400;600;700&display=swap');
+  font-display: swap;
+}
+
+@layer base {
+  * {
+    @apply border-border selection:bg-voltage-blue/30 selection:text-white;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased overflow-x-hidden;
+    font-family: "Space Mono", "Inconsolata", monospace;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', 'Space Mono', monospace;
+  }
+}
+
+@layer components {
+  .circuit-panel {
+    @apply backdrop-blur-lg bg-black/70 border border-white/10 shadow-lg rounded-lg;
+    background-image: 
+      linear-gradient(rgba(2, 8, 20, 0.95), rgba(2, 8, 20, 0.95)),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(26, 55, 77, 0.1) 2px, rgba(26, 55, 77, 0.1) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(26, 55, 77, 0.1) 2px, rgba(26, 55, 77, 0.1) 4px);
+  }
+  
+  .electric-border {
+    @apply relative rounded-lg;
+    box-shadow: 0 0 4px theme('colors.voltage.blue'), 
+                0 0 8px theme('colors.voltage.blue');
+  }
+  
+  .electric-border-orange {
+    @apply relative rounded-lg;
+    box-shadow: 0 0 4px theme('colors.voltage.orange'), 
+                0 0 8px theme('colors.voltage.orange');
+  }
+  
+  .electric-text {
+    @apply font-bold;
+    text-shadow: 0 0 4px rgba(64, 190, 255, 0.5), 
+                 0 0 6px rgba(64, 190, 255, 0.3);
+    color: rgba(64, 190, 255, 0.85);
+  }
+  
+  .electric-text-orange {
+    @apply font-bold;
+    text-shadow: 0 0 4px rgba(249, 115, 22, 0.5), 
+                 0 0 6px rgba(249, 115, 22, 0.3);
+    color: rgba(249, 115, 22, 0.85);
+  }
+  
+  .circuit-button {
+    @apply relative overflow-hidden px-4 py-2 bg-transparent 
+           border border-voltage-blue text-voltage-blue 
+           hover:text-white transition-all duration-300 
+           font-mono uppercase tracking-wider rounded;
+    background-image: repeating-linear-gradient(90deg, rgba(64, 190, 255, 0.1) 0px, rgba(64, 190, 255, 0.1) 1px, transparent 1px, transparent 3px);
+  }
+  
+  .circuit-button:before {
+    @apply absolute inset-0 bg-voltage-blue/80 -z-10 transform scale-x-0 origin-left transition-transform duration-300;
+    content: '';
+  }
+  
+  .circuit-button:hover:before {
+    @apply scale-x-100;
+  }
+  
+  .circuit-button-orange {
+    @apply relative overflow-hidden px-4 py-2 bg-transparent 
+           border border-voltage-orange text-voltage-orange 
+           hover:text-white transition-all duration-300 
+           font-mono uppercase tracking-wider rounded;
+    background-image: repeating-linear-gradient(90deg, rgba(249, 115, 22, 0.1) 0px, rgba(249, 115, 22, 0.1) 1px, transparent 1px, transparent 3px);
+  }
+  
+  .circuit-button-orange:before {
+    @apply absolute inset-0 bg-voltage-orange/80 -z-10 transform scale-x-0 origin-left transition-transform duration-300;
+    content: '';
+  }
+  
+  .circuit-button-orange:hover:before {
+    @apply scale-x-100;
+  }
+  
+  .blinking-cursor::after {
+    content: '|';
+    animation: blink 1s step-end infinite;
+  }
+  
+  @keyframes blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .font-circuit {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+  }
+  
+  .binary-bg {
+    position: relative;
+  }
+  
+  .binary-bg::before {
+    content: "01001101 01000001 01000100";
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    font-family: monospace;
+    font-size: 8px;
+    color: rgba(64, 190, 255, 0.2);
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* Current name replacements */
+  .glass-panel {
+    @apply circuit-panel;
+  }
+  
+  .neon-border {
+    @apply electric-border;
+  }
+  
+  .neon-border-orange {
+    @apply electric-border-orange;
+  }
+  
+  .neon-text {
+    @apply electric-text;
+  }
+  
+  .neon-text-orange {
+    @apply electric-text-orange;
+  }
+  
+  .cyber-button {
+    @apply circuit-button;
+  }
+  
+  .cyber-button-orange {
+    @apply circuit-button-orange;
+  }
+}
+
+@keyframes blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes elevator-up {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes elevator-down {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes door-open {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes door-close {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.selection\:bg-bitcoin-blue\/30 {
+  --tw-selection-bg: rgb(30 174 219 / 0.3);
+}
+
+.selection\:text-white {
+  --tw-selection-color: #fff;
+}

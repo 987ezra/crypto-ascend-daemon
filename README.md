@@ -1,1 +1,1 @@
-# crypto-ascend-daemon
+Crypto ascend
