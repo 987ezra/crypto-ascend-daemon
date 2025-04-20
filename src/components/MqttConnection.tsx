@@ -12,10 +12,10 @@ interface MqttConnectionProps {
 
 const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
   const { isConnected, connect, disconnect } = useMqtt();
-  const [brokerUrl, setBrokerUrl] = useState('wss://5412836165b448ca98f99040756f5b82.s1.eu.hivemq.cloud:8884');
+  const [brokerUrl, setBrokerUrl] = useState('wss://5412836165b448ca98f99040756f5b82.s1.eu.hivemq.cloud:8884/mqtt');
   const [clientId, setClientId] = useState(`crypto_elevator_${Math.floor(Math.random() * 1000)}`);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('hivemq.webclient.1745152073766');
+  const [password, setPassword] = useState('PRG*8.Ipg7U6x$neC0j<');
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
@@ -63,9 +63,9 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
             onChange={(e) => setBrokerUrl(e.target.value)}
             disabled={isConnected}
             className="bg-black/30 border-bitcoin-light/30"
-            placeholder="wss://[broker-id].s1.eu.hivemq.cloud:8884"
+            placeholder="wss://[broker-id].s1.eu.hivemq.cloud:8884/mqtt"
           />
-          <p className="text-xs text-gray-400">Use WebSocket port 8884 for secure connections</p>
+          <p className="text-xs text-gray-400">Use WebSocket port 8884 for secure connections with /mqtt path</p>
         </div>
         
         <div className="space-y-2">
