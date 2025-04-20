@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,19 +12,34 @@ interface MqttConnectionProps {
 
 const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
   const { isConnected, connect, disconnect } = useMqtt();
-  const [brokerUrl, setBrokerUrl] = useState('wss://5412836165b448ca98f99040756f5b82.s1.eu.hivemq.cloud:8884/mqtt');
+  // Using explicit hostname and port to prevent any manipulation
+  const [hostname, setHostname] = useState('5412836165b448ca98f99040756f5b82.s1.eu.hivemq.cloud');
+  const [port, setPort] = useState('8884');
   const [clientId, setClientId] = useState(`crypto_elevator_${Math.floor(Math.random() * 1000)}`);
   const [username, setUsername] = useState('hivemq.webclient.1745152073766');
   const [password, setPassword] = useState('PRG*8.Ipg7U6x$neC0j<');
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  
+  // Construct the full broker URL when either hostname or port changes
+  const [brokerUrl, setBrokerUrl] = useState('');
+  
+  useEffect(() => {
+    const url = `wss://${hostname}:${port}/mqtt`;
+    setBrokerUrl(url);
+  }, [hostname, port]);
 
   const handleConnect = async () => {
     setIsConnecting(true);
     setConnectionError(null);
+    
+    // Ensure the URL is properly formed right before connection
+    const connectionUrl = `wss://${hostname}:${port}/mqtt`;
+    
     try {
+      console.log(`Attempting connection to: ${connectionUrl}`);
       await connect({
-        brokerUrl,
+        brokerUrl: connectionUrl, // Use the freshly constructed URL
         clientId,
         username: username || undefined,
         password: password || undefined,
@@ -32,8 +47,9 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
           keepalive: 60,
           reconnectPeriod: 5000,
           connectTimeout: 30000,
-          // HiveMQ Cloud requires TLS
-          rejectUnauthorized: true
+          rejectUnauthorized: true,
+          // Explicitly set the port to ensure it doesn't get changed
+          port: parseInt(port, 10)
         }
       });
       soundService.play(SoundEffect.CONNECTION);
@@ -56,16 +72,38 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
       
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="broker-url">Broker URL</Label>
+          <Label htmlFor="hostname">Broker Hostname</Label>
           <Input
-            id="broker-url"
-            value={brokerUrl}
-            onChange={(e) => setBrokerUrl(e.target.value)}
+            id="hostname"
+            value={hostname}
+            onChange={(e) => setHostname(e.target.value)}
             disabled={isConnected}
             className="bg-black/30 border-bitcoin-light/30"
-            placeholder="wss://[broker-id].s1.eu.hivemq.cloud:8884/mqtt"
+            placeholder="[broker-id].s1.eu.hivemq.cloud"
           />
-          <p className="text-xs text-gray-400">Use WebSocket port 8884 for secure connections with /mqtt path</p>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="port">WebSocket Port</Label>
+          <Input
+            id="port"
+            value={port}
+            onChange={(e) => setPort(e.target.value)}
+            disabled={isConnected}
+            className="bg-black/30 border-bitcoin-light/30"
+            placeholder="8884"
+          />
+          <p className="text-xs text-gray-400">Use port 8884 for secure WebSocket connections</p>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="generated-url">Generated URL</Label>
+          <Input
+            id="generated-url"
+            value={brokerUrl}
+            readOnly
+            className="bg-black/30 border-bitcoin-light/30 text-gray-400"
+          />
         </div>
         
         <div className="space-y-2">
@@ -128,7 +166,7 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
             <Button 
               variant="default" 
               onClick={handleConnect}
-              disabled={isConnecting || !brokerUrl || !clientId || !username || !password}
+              disabled={isConnecting || !hostname || !port || !clientId || !username || !password}
               className="w-full bg-bitcoin-light hover:bg-bitcoin-light/80"
             >
               {isConnecting ? (
