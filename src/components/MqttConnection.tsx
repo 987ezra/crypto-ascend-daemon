@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,24 +12,34 @@ interface MqttConnectionProps {
 
 const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
   const { isConnected, connect, disconnect } = useMqtt();
-  const [brokerUrl, setBrokerUrl] = useState('wss://broker.hivemq.com:8884');
+  const [brokerUrl, setBrokerUrl] = useState('wss://5412836165b448ca98f99040756f5b82.s1.eu.hivemq.cloud:8884');
   const [clientId, setClientId] = useState(`crypto_elevator_${Math.floor(Math.random() * 1000)}`);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   const handleConnect = async () => {
     setIsConnecting(true);
+    setConnectionError(null);
     try {
       await connect({
         brokerUrl,
         clientId,
         username: username || undefined,
-        password: password || undefined
+        password: password || undefined,
+        options: {
+          keepalive: 60,
+          reconnectPeriod: 5000,
+          connectTimeout: 30000,
+          // HiveMQ Cloud requires TLS
+          rejectUnauthorized: true
+        }
       });
       soundService.play(SoundEffect.CONNECTION);
     } catch (error) {
       console.error('Connection error:', error);
+      setConnectionError(error instanceof Error ? error.message : 'Connection failed');
     } finally {
       setIsConnecting(false);
     }
@@ -38,6 +47,7 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
 
   const handleDisconnect = () => {
     disconnect();
+    setConnectionError(null);
   };
 
   return (
@@ -53,8 +63,9 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
             onChange={(e) => setBrokerUrl(e.target.value)}
             disabled={isConnected}
             className="bg-black/30 border-bitcoin-light/30"
-            placeholder="wss://broker.hivemq.com:8884"
+            placeholder="wss://[broker-id].s1.eu.hivemq.cloud:8884"
           />
+          <p className="text-xs text-gray-400">Use WebSocket port 8884 for secure connections</p>
         </div>
         
         <div className="space-y-2">
@@ -71,19 +82,20 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
         
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-2">
-            <Label htmlFor="username">Username (optional)</Label>
+            <Label htmlFor="username">Username <span className="text-red-500">*</span></Label>
             <Input
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isConnected}
               className="bg-black/30 border-bitcoin-light/30"
-              placeholder="Username"
+              placeholder="HiveMQ Username"
+              required
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="password">Password (optional)</Label>
+            <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
             <Input
               id="password"
               type="password"
@@ -91,10 +103,17 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isConnected}
               className="bg-black/30 border-bitcoin-light/30"
-              placeholder="Password"
+              placeholder="HiveMQ Password"
+              required
             />
           </div>
         </div>
+        
+        {connectionError && (
+          <div className="text-red-500 text-sm py-2 px-3 bg-red-500/10 border border-red-500/20 rounded">
+            Connection Error: {connectionError}
+          </div>
+        )}
         
         <div className="pt-2">
           {isConnected ? (
@@ -109,7 +128,7 @@ const MqttConnection: React.FC<MqttConnectionProps> = ({ className }) => {
             <Button 
               variant="default" 
               onClick={handleConnect}
-              disabled={isConnecting || !brokerUrl || !clientId}
+              disabled={isConnecting || !brokerUrl || !clientId || !username || !password}
               className="w-full bg-bitcoin-light hover:bg-bitcoin-light/80"
             >
               {isConnecting ? (
